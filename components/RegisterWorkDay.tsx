@@ -21,9 +21,13 @@ type WorkDayFormData = z.infer<typeof workDaySchema>;
 
 interface RegisterWorkDayProps {
   onSuccess: () => void;
+  dailyGoal: number;
 }
 
-export function RegisterWorkDay({ onSuccess }: RegisterWorkDayProps) {
+export function RegisterWorkDay({
+  onSuccess,
+  dailyGoal,
+}: RegisterWorkDayProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [total, setTotal] = useState(0);
 
@@ -134,7 +138,9 @@ export function RegisterWorkDay({ onSuccess }: RegisterWorkDayProps) {
       <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
         <div className="flex items-center gap-2 mb-4">
           <Fuel className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Abastecimento (Opcional)</h3>
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Abastecimento (Opcional)
+          </h3>
         </div>
 
         <div className="space-y-4">
@@ -202,16 +208,22 @@ export function RegisterWorkDay({ onSuccess }: RegisterWorkDayProps) {
 
       {/* Feedback imediato */}
       <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total do dia</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          Total do dia
+        </div>
         <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
           {formatCurrency(total)}
         </div>
         <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-          Meta: {formatCurrency(500)} •{" "}
-          {total >= 500 ? (
-            <span className="text-green-600 font-semibold">Meta atingida! 🎉</span>
+          Meta: {formatCurrency(dailyGoal)} •{" "}
+          {total >= dailyGoal ? (
+            <span className="text-green-600 font-semibold">
+              Meta atingida! 🎉
+            </span>
           ) : (
-            <span className="font-medium">Faltam {formatCurrency(500 - total)}</span>
+            <span className="font-medium">
+              Faltam {formatCurrency(dailyGoal - total)}
+            </span>
           )}
         </div>
       </div>

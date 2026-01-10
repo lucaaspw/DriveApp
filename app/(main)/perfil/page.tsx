@@ -24,7 +24,12 @@ export default async function PerfilPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Perfil</h1>
       <ProfileView
-        user={user}
+        user={{
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          dailyGoal: user.dailyGoal,
+        }}
         clerkUser={serializedClerkUser}
       />
     </div>

@@ -3,7 +3,11 @@
 import { useRouter } from "next/navigation";
 import { RegisterWorkDay } from "./RegisterWorkDay";
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  dailyGoal: number;
+}
+
+export function RegisterForm({ dailyGoal }: RegisterFormProps) {
   const router = useRouter();
 
   const handleSuccess = () => {
@@ -13,7 +17,7 @@ export function RegisterForm() {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-      <RegisterWorkDay onSuccess={handleSuccess} />
+      <RegisterWorkDay onSuccess={handleSuccess} dailyGoal={dailyGoal} />
     </div>
   );
 }
