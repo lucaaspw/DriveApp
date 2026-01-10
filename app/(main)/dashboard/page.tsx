@@ -51,11 +51,11 @@ export default async function DashboardPage() {
 
   // Calcular custo por km
   const totalKm = last30Days.reduce(
-    (sum: number, day) => sum + day.kmDriven,
+    (sum: number, day: (typeof last30Days)[number]) => sum + day.kmDriven,
     0
   );
   const totalFuelCost = last30DaysFuelings.reduce(
-    (sum: number, f) => sum + f.amount,
+    (sum: number, f: (typeof last30DaysFuelings)[number]) => sum + f.amount,
     0
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;
