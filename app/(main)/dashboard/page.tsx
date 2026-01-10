@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatTime } from "@/lib/utils";
 import { HomeToday } from "@/components/HomeToday";
 import { Prisma } from "@prisma/client";
 
@@ -51,10 +50,7 @@ export default async function DashboardPage() {
   });
 
   // Calcular custo por km
-  const totalKm = last30Days.reduce(
-    (sum: number, day: Prisma.WorkDayGetPayload<{}>) => sum + day.kmDriven,
-    0
-  );
+  const totalKm = last30Days.reduce((sum, day) => sum + day.kmDriven, 0);
   const totalFuelCost = last30DaysFuelings.reduce(
     (sum: number, f: Prisma.FuelingGetPayload<{}>) => sum + f.amount,
     0
