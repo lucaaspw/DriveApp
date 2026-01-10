@@ -6,7 +6,7 @@ import { Home, Plus, BarChart3, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Hoje", icon: Home },
+  { href: "/dashboard", label: "Hoje", icon: Home },
   { href: "/registrar", label: "Registrar", icon: Plus },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/perfil", label: "Perfil", icon: User },

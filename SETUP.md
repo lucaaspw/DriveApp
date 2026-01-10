@@ -28,8 +28,8 @@
 6. Configure as URLs de redirecionamento:
    - Sign-in URL: `/sign-in`
    - Sign-up URL: `/sign-up`
-   - After sign-in URL: `/`
-   - After sign-up URL: `/`
+   - After sign-in URL: `/dashboard`
+   - After sign-up URL: `/dashboard`
 
 ### 3. Configurar Variáveis de Ambiente
 
@@ -47,8 +47,8 @@ CLERK_SECRET_KEY=sk_test_...
 # Clerk URLs
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ```
 
 ### 4. Instalar Dependências
@@ -77,10 +77,10 @@ Acesse [http://localhost:3000](http://localhost:3000)
 
 ### 7. Primeiro Acesso
 
-1. Você será redirecionado para a tela de login
-2. Clique em "Sign up" ou "Sign in"
+1. Você verá a landing page inicial
+2. Clique em "Começar Agora" para fazer login
 3. Use sua conta Google para fazer login
-4. Após o login, você será redirecionado para a tela "Hoje"
+4. Após o login, você será redirecionado para a tela "Hoje" (Dashboard)
 
 ## 🎯 Próximos Passos
 

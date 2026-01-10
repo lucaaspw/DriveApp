@@ -1,7 +1,14 @@
 "use client";
 
 import { formatCurrency, formatTime } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Target, Fuel, Clock, Gauge } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Fuel,
+  Clock,
+  Gauge,
+} from "lucide-react";
 
 interface HomeTodayProps {
   workDay: {
@@ -15,7 +22,12 @@ interface HomeTodayProps {
   todayFuelCost: number;
 }
 
-export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: HomeTodayProps) {
+export function HomeToday({
+  workDay,
+  dailyGoal,
+  costPerKm,
+  todayFuelCost,
+}: HomeTodayProps) {
   const totalEarnings = workDay
     ? workDay.uberEarnings + workDay.ninetynineEarnings
     : 0;
@@ -28,7 +40,9 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
     <div className="space-y-4">
       {/* Card: Ganho do dia */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Ganho do dia</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+          Ganho do dia
+        </div>
         <div className="text-3xl font-bold text-gray-900 dark:text-white">
           {formatCurrency(totalEarnings)}
         </div>
@@ -37,7 +51,9 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
       {/* Card: Lucro líquido */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Lucro líquido</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            Lucro líquido
+          </div>
           {netProfit >= 0 ? (
             <TrendingUp className="w-5 h-5 text-green-500" />
           ) : (
@@ -61,13 +77,15 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Meta diária</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Meta diária
+            </span>
           </div>
           <span className="text-sm font-semibold text-gray-900 dark:text-white">
             {formatCurrency(dailyGoal)}
           </span>
         </div>
-        
+
         {/* Barra de progresso */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
           <div
@@ -77,13 +95,16 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
             style={{ width: `${Math.min(100, goalProgress)}%` }}
           />
         </div>
-        
+
         <div className="text-sm">
           {isGoalReached ? (
-            <span className="text-green-600 font-semibold">Meta atingida 🎉</span>
+            <span className="text-green-600 font-semibold">
+              Meta atingida 🎉
+            </span>
           ) : (
             <span className="text-gray-600 dark:text-gray-400">
-              Faltam <span className="font-semibold">{formatCurrency(remaining)}</span>
+              Faltam{" "}
+              <span className="font-semibold">{formatCurrency(remaining)}</span>
             </span>
           )}
         </div>
@@ -94,7 +115,9 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Fuel className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">Gasto com combustível</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Gasto com combustível
+            </span>
           </div>
         </div>
         <div className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -108,16 +131,22 @@ export function HomeToday({ workDay, dailyGoal, costPerKm, todayFuelCost }: Home
       {/* Destaques rápidos */}
       {workDay && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Destaques</div>
+          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+            Destaques
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Uber</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Uber
+              </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
                 {formatCurrency(workDay.uberEarnings)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">99</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                99
+              </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
                 {formatCurrency(workDay.ninetynineEarnings)}
               </div>
