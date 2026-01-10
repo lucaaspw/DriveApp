@@ -36,18 +36,18 @@ export function ReportsTab({
 }: ReportsTabProps) {
   // Calcular totais
   const totalEarnings = workDays.reduce(
-    (sum, day) => sum + day.uberEarnings + day.ninetynineEarnings,
+    (sum: number, day) => sum + day.uberEarnings + day.ninetynineEarnings,
     0
   );
 
   const totalFuelCost = workDays.reduce(
-    (sum, day) => sum + day.kmDriven * costPerKm,
+    (sum: number, day) => sum + day.kmDriven * costPerKm,
     0
   );
 
   const netProfit = totalEarnings - totalFuelCost;
-  const totalHours = workDays.reduce((sum, day) => sum + day.hoursWorked, 0);
-  const totalKm = workDays.reduce((sum, day) => sum + day.kmDriven, 0);
+  const totalHours = workDays.reduce((sum: number, day) => sum + day.hoursWorked, 0);
+  const totalKm = workDays.reduce((sum: number, day) => sum + day.kmDriven, 0);
   const daysCount = workDays.length;
 
   const avgPerDay = daysCount > 0 ? totalEarnings / daysCount : 0;
@@ -58,9 +58,9 @@ export function ReportsTab({
   const earningsPerHour = totalHours > 0 ? totalEarnings / totalHours : 0;
   const earningsPerKm = totalKm > 0 ? totalEarnings / totalKm : 0;
 
-  const uberTotal = workDays.reduce((sum, day) => sum + day.uberEarnings, 0);
+  const uberTotal = workDays.reduce((sum: number, day) => sum + day.uberEarnings, 0);
   const ninetynineTotal = workDays.reduce(
-    (sum, day) => sum + day.ninetynineEarnings,
+    (sum: number, day) => sum + day.ninetynineEarnings,
     0
   );
 

@@ -91,9 +91,12 @@ export default async function RelatoriosPage() {
     },
   });
 
-  const totalKm = last30Days.reduce((sum, day) => sum + day.kmDriven, 0);
+  const totalKm = last30Days.reduce(
+    (sum: number, day) => sum + day.kmDriven,
+    0
+  );
   const totalFuelCost = last30DaysFuelings.reduce(
-    (sum, f) => sum + f.amount,
+    (sum: number, f) => sum + f.amount,
     0
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;
