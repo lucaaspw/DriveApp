@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ReportsView } from "@/components/ReportsView";
+import { Prisma } from "@prisma/client";
 
 export default async function RelatoriosPage() {
   const user = await getCurrentUser();
@@ -92,11 +93,11 @@ export default async function RelatoriosPage() {
   });
 
   const totalKm = last30Days.reduce(
-    (sum: number, day) => sum + day.kmDriven,
+    (sum: number, day: Prisma.WorkDayGetPayload<{}>) => sum + day.kmDriven,
     0
   );
   const totalFuelCost = last30DaysFuelings.reduce(
-    (sum: number, f) => sum + f.amount,
+    (sum: number, f: Prisma.FuelingGetPayload<{}>) => sum + f.amount,
     0
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;

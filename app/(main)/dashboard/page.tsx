@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatTime } from "@/lib/utils";
 import { HomeToday } from "@/components/HomeToday";
+import { Prisma } from "@prisma/client";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -51,11 +52,11 @@ export default async function DashboardPage() {
 
   // Calcular custo por km
   const totalKm = last30Days.reduce(
-    (sum: number, day: (typeof last30Days)[number]) => sum + day.kmDriven,
+    (sum: number, day: Prisma.WorkDayGetPayload<{}>) => sum + day.kmDriven,
     0
   );
   const totalFuelCost = last30DaysFuelings.reduce(
-    (sum: number, f: (typeof last30DaysFuelings)[number]) => sum + f.amount,
+    (sum: number, f: Prisma.FuelingGetPayload<{}>) => sum + f.amount,
     0
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;
