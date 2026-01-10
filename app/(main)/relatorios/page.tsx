@@ -99,21 +99,37 @@ export default async function RelatoriosPage() {
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;
 
   // Serializar dados para passar ao componente client
-  const serializeWorkDay = (day: (typeof dayWorkDays)[0]) => ({
-    id: day.id,
-    date: day.date.toISOString(),
-    hoursWorked: day.hoursWorked,
-    kmDriven: day.kmDriven,
-    uberEarnings: day.uberEarnings,
-    ninetynineEarnings: day.ninetynineEarnings,
-  });
+  // Formatar data preservando o dia correto usando UTC (evita problemas de timezone)
+  const serializeWorkDay = (day: (typeof dayWorkDays)[0]) => {
+    const date = day.date instanceof Date ? day.date : new Date(day.date);
+    // Usar métodos UTC para garantir que o dia não mude
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const dayNum = String(date.getUTCDate()).padStart(2, "0");
+    return {
+      id: day.id,
+      date: `${year}-${month}-${dayNum}`,
+      hoursWorked: day.hoursWorked,
+      kmDriven: day.kmDriven,
+      uberEarnings: day.uberEarnings,
+      ninetynineEarnings: day.ninetynineEarnings,
+    };
+  };
 
-  const serializeFueling = (fueling: (typeof weekFuelings)[0]) => ({
-    id: fueling.id,
-    date: fueling.date.toISOString(),
-    amount: fueling.amount,
-    kmDriven: fueling.kmDriven,
-  });
+  const serializeFueling = (fueling: (typeof weekFuelings)[0]) => {
+    const date =
+      fueling.date instanceof Date ? fueling.date : new Date(fueling.date);
+    // Usar métodos UTC para garantir que o dia não mude
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const dayNum = String(date.getUTCDate()).padStart(2, "0");
+    return {
+      id: fueling.id,
+      date: `${year}-${month}-${dayNum}`,
+      amount: fueling.amount,
+      kmDriven: fueling.kmDriven,
+    };
+  };
 
   return (
     <div className="p-4">

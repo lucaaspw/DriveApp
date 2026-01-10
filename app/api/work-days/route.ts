@@ -29,12 +29,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = workDaySchema.parse(body);
 
+    // Converter string de data (YYYY-MM-DD) para Date preservando o dia correto
+    // Usar UTC para evitar problemas de timezone que podem resultar em um dia anterior
+    const [year, month, day] = data.date.split('-').map(Number);
+    const workDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+
     // Criar ou atualizar dia de trabalho
     const workDay = await prisma.workDay.upsert({
       where: {
         userId_date: {
           userId: user.id,
-          date: new Date(data.date),
+          date: workDate,
         },
       },
       update: {
@@ -45,7 +50,7 @@ export async function POST(request: NextRequest) {
       },
       create: {
         userId: user.id,
-        date: new Date(data.date),
+        date: workDate,
         hoursWorked: data.hoursWorked,
         kmDriven: data.kmDriven,
         uberEarnings: data.uberEarnings,
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           amount: data.fuelAmount,
           kmDriven: 0, // Campo não mais usado, mantido para compatibilidade com o schema
-          date: new Date(data.date),
+          date: workDate,
         },
       });
     }

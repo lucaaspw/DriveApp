@@ -13,12 +13,27 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(d);
+  let d: Date;
+  
+  if (typeof date === 'string') {
+    // Se for uma string no formato YYYY-MM-DD, criar Date usando UTC preservando o dia
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month, day] = date.split('-').map(Number);
+      d = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    } else {
+      // Caso contrário, tentar parsear normalmente
+      d = new Date(date);
+    }
+  } else {
+    d = date;
+  }
+  
+  // Usar UTC para extrair os valores e formatar, garantindo que o dia não mude
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  
+  return `${day}/${month}/${year}`;
 }
 
 export function formatTime(hours: number): string {
