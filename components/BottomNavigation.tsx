@@ -6,9 +6,9 @@ import { Home, Plus, BarChart3, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/dashboard", label: "Hoje", icon: Home },
   { href: "/registrar", label: "Registrar", icon: Plus },
-  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/perfil", label: "Perfil", icon: User },
 ];
 
@@ -16,7 +16,7 @@ export function BottomNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-bottom md:hidden">
       <div className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;

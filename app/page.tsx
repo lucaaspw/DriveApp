@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 
 export default async function LandingPage() {
-  // Se usuário já estiver autenticado, redirecionar para dashboard
+  // Se usuário já estiver autenticado, redirecionar para relatórios
   const user = await getCurrentUser();
   if (user) {
-    redirect("/dashboard");
+    redirect("/relatorios");
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

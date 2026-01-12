@@ -11,12 +11,12 @@ export function RegisterForm({ dailyGoal }: RegisterFormProps) {
   const router = useRouter();
 
   const handleSuccess = () => {
-    router.push("/");
+    router.push("/relatorios");
     router.refresh();
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm">
       <RegisterWorkDay onSuccess={handleSuccess} dailyGoal={dailyGoal} />
     </div>
   );

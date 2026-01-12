@@ -67,12 +67,13 @@ export default async function DashboardPage() {
         kmDriven: todayWorkDay.kmDriven,
         uberEarnings: todayWorkDay.uberEarnings,
         ninetynineEarnings: todayWorkDay.ninetynineEarnings,
+        inDriveEarnings: todayWorkDay.inDriveEarnings,
       }
     : null;
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+    <div className="space-y-4 md:space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Olá, {user.name}
       </h1>
       <HomeToday

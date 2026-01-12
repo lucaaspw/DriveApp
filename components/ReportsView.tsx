@@ -12,6 +12,7 @@ interface WorkDay {
   kmDriven: number;
   uberEarnings: number;
   ninetynineEarnings: number;
+  inDriveEarnings: number;
 }
 
 interface Fueling {
@@ -43,7 +44,7 @@ export function ReportsView({
   const [activeTab, setActiveTab] = useState<"day" | "week" | "month">("day");
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
       {/* Tabs */}
       <div className="flex gap-2 bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm">
         <button

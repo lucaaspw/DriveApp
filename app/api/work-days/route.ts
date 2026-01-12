@@ -10,6 +10,7 @@ const workDaySchema = z.object({
   kmDriven: z.number().min(1),
   uberEarnings: z.number().min(0),
   ninetynineEarnings: z.number().min(0),
+  inDriveEarnings: z.number().min(0),
   // Campo opcional de combustível
   fuelAmount: z.number().min(0).optional(),
 });
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
         kmDriven: data.kmDriven,
         uberEarnings: data.uberEarnings,
         ninetynineEarnings: data.ninetynineEarnings,
+        inDriveEarnings: data.inDriveEarnings,
       },
       create: {
         userId: user.id,
@@ -55,6 +57,7 @@ export async function POST(request: NextRequest) {
         kmDriven: data.kmDriven,
         uberEarnings: data.uberEarnings,
         ninetynineEarnings: data.ninetynineEarnings,
+        inDriveEarnings: data.inDriveEarnings,
       },
     });
 

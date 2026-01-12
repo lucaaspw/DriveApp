@@ -69,9 +69,9 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
       {/* Informações do usuário */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm">
         <div className="flex flex-col items-center gap-4">
           {/* Foto */}
           {imageUrl ? (
@@ -100,7 +100,7 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
       </div>
 
       {/* Meta diária */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -160,7 +160,7 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
       </div>
 
       {/* Botão de Logout */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm">
         <SignOutButton>
           <button className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
             <LogOut className="w-5 h-5" />

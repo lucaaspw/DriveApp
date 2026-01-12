@@ -31,6 +31,7 @@ model WorkDay {
   kmDriven      Float
   uberEarnings  Float     @default(0)
   ninetynineEarnings Float @default(0)
+  inDriveEarnings Float   @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

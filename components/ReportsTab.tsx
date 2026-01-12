@@ -10,6 +10,7 @@ interface WorkDay {
   kmDriven: number;
   uberEarnings: number;
   ninetynineEarnings: number;
+  inDriveEarnings: number;
 }
 
 interface Fueling {
@@ -36,7 +37,7 @@ export function ReportsTab({
 }: ReportsTabProps) {
   // Calcular totais
   const totalEarnings = workDays.reduce(
-    (sum: number, day) => sum + day.uberEarnings + day.ninetynineEarnings,
+    (sum: number, day) => sum + day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
     0
   );
 
@@ -52,7 +53,7 @@ export function ReportsTab({
 
   const avgPerDay = daysCount > 0 ? totalEarnings / daysCount : 0;
   const daysGoalReached = workDays.filter(
-    (day) => day.uberEarnings + day.ninetynineEarnings >= dailyGoal
+    (day) => day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings >= dailyGoal
   ).length;
 
   const earningsPerHour = totalHours > 0 ? totalEarnings / totalHours : 0;
@@ -63,11 +64,15 @@ export function ReportsTab({
     (sum: number, day) => sum + day.ninetynineEarnings,
     0
   );
+  const inDriveTotal = workDays.reduce(
+    (sum: number, day) => sum + day.inDriveEarnings,
+    0
+  );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
       {/* Cards principais */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -96,12 +101,12 @@ export function ReportsTab({
       </div>
 
       {/* Estatísticas */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm space-y-3">
         <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
           Estatísticas
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <div>
             <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
               Média por dia
@@ -123,7 +128,7 @@ export function ReportsTab({
       </div>
 
       {/* Desempenho */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm space-y-3">
         <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
           Desempenho
         </div>
@@ -167,11 +172,11 @@ export function ReportsTab({
         </div>
       </div>
 
-      {/* Comparação Uber vs 99 */}
-      {uberTotal > 0 || ninetynineTotal > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+      {/* Comparação Uber vs 99 vs inDrive */}
+      {uberTotal > 0 || ninetynineTotal > 0 || inDriveTotal > 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm">
           <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            Uber vs 99
+            Uber vs 99 vs inDrive
           </div>
           <div className="space-y-2">
             <div>
@@ -212,19 +217,39 @@ export function ReportsTab({
                 />
               </div>
             </div>
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">inDrive</span>
+                <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                  {formatCurrency(inDriveTotal)}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-purple-600 h-2 rounded-full"
+                  style={{
+                    width: `${
+                      totalEarnings > 0
+                        ? (inDriveTotal / totalEarnings) * 100
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       ) : null}
 
       {/* Lista de dias (se houver) */}
       {workDays.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm">
           <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Dias registrados
           </div>
           <div className="space-y-2">
             {workDays.map((day) => {
-              const dayTotal = day.uberEarnings + day.ninetynineEarnings;
+              const dayTotal = day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings;
               const isGoalReached = dayTotal >= dailyGoal;
 
               return (

@@ -117,6 +117,7 @@ export default async function RelatoriosPage() {
       kmDriven: day.kmDriven,
       uberEarnings: day.uberEarnings,
       ninetynineEarnings: day.ninetynineEarnings,
+      inDriveEarnings: day.inDriveEarnings,
     };
   };
 
@@ -136,8 +137,8 @@ export default async function RelatoriosPage() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+    <div className="space-y-4 md:space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Relatórios
       </h1>
       <ReportsView

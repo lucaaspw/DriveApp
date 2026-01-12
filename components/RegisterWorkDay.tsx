@@ -13,6 +13,7 @@ const workDaySchema = z.object({
   kmDriven: z.number().min(1),
   uberEarnings: z.number().min(0),
   ninetynineEarnings: z.number().min(0),
+  inDriveEarnings: z.number().min(0),
   // Campo opcional de combustível
   fuelAmount: z.number().min(0).optional(),
 });
@@ -44,15 +45,17 @@ export function RegisterWorkDay({
       kmDriven: 100,
       uberEarnings: 0,
       ninetynineEarnings: 0,
+      inDriveEarnings: 0,
       fuelAmount: undefined,
     },
   });
 
   const uberEarnings = watch("uberEarnings");
   const ninetynineEarnings = watch("ninetynineEarnings");
+  const inDriveEarnings = watch("inDriveEarnings");
 
   // Calcular total
-  const currentTotal = (uberEarnings || 0) + (ninetynineEarnings || 0);
+  const currentTotal = (uberEarnings || 0) + (ninetynineEarnings || 0) + (inDriveEarnings || 0);
   if (currentTotal !== total) {
     setTotal(currentTotal);
   }
@@ -80,42 +83,46 @@ export function RegisterWorkDay({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <Calendar className="w-4 h-4" />
-          Data
-        </label>
-        <input
-          type="date"
-          {...register("date")}
-          className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {errors.date && (
-          <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <Clock className="w-4 h-4" />
-          Horas trabalhadas
-        </label>
-        <div className="flex items-center gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
+      {/* Primeira linha: Data e Horas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <Calendar className="w-4 h-4" />
+            Data
+          </label>
           <input
-            type="range"
-            min="0.5"
-            max="24"
-            step="0.5"
-            {...register("hoursWorked", { valueAsNumber: true })}
-            className="flex-1"
+            type="date"
+            {...register("date")}
+            className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <span className="text-lg font-semibold w-16 text-right text-gray-900 dark:text-white">
-            {watch("hoursWorked")}h
-          </span>
+          {errors.date && (
+            <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <Clock className="w-4 h-4" />
+            Horas trabalhadas
+          </label>
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min="0.5"
+              max="24"
+              step="0.5"
+              {...register("hoursWorked", { valueAsNumber: true })}
+              className="flex-1"
+            />
+            <span className="text-lg font-semibold w-16 text-right text-gray-900 dark:text-white">
+              {watch("hoursWorked")}h
+            </span>
+          </div>
         </div>
       </div>
 
+      {/* Segunda linha: Km rodados */}
       <div>
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           <Gauge className="w-4 h-4" />
@@ -134,8 +141,76 @@ export function RegisterWorkDay({
         )}
       </div>
 
+      {/* Seção de Ganhos em grid */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+          Ganhos por Plataforma
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <DollarSign className="w-4 h-4" />
+              Ganhos Uber
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("uberEarnings", { valueAsNumber: true })}
+              className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="0.00"
+            />
+            {errors.uberEarnings && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.uberEarnings.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <DollarSign className="w-4 h-4" />
+              Ganhos 99
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("ninetynineEarnings", { valueAsNumber: true })}
+              className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="0.00"
+            />
+            {errors.ninetynineEarnings && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.ninetynineEarnings.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <DollarSign className="w-4 h-4" />
+              Ganhos inDrive
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("inDriveEarnings", { valueAsNumber: true })}
+              className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="0.00"
+            />
+            {errors.inDriveEarnings && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.inDriveEarnings.message}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Seção de Combustível */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
         <div className="flex items-center gap-2 mb-4">
           <Fuel className="w-5 h-5 text-orange-500 dark:text-orange-400" />
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -143,7 +218,7 @@ export function RegisterWorkDay({
           </h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="max-w-md">
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <DollarSign className="w-4 h-4" />
@@ -164,46 +239,6 @@ export function RegisterWorkDay({
             )}
           </div>
         </div>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <DollarSign className="w-4 h-4" />
-          Ganhos Uber
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          {...register("uberEarnings", { valueAsNumber: true })}
-          className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="0.00"
-        />
-        {errors.uberEarnings && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.uberEarnings.message}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <DollarSign className="w-4 h-4" />
-          Ganhos 99
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          {...register("ninetynineEarnings", { valueAsNumber: true })}
-          className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="0.00"
-        />
-        {errors.ninetynineEarnings && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.ninetynineEarnings.message}
-          </p>
-        )}
       </div>
 
       {/* Feedback imediato */}

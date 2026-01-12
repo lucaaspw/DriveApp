@@ -10,8 +10,8 @@ export default async function RegistrarPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registrar</h1>
+    <div className="space-y-4 md:space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Registrar</h1>
       <RegisterForm dailyGoal={user.dailyGoal} />
     </div>
   );
