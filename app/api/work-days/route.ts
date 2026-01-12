@@ -8,6 +8,7 @@ const workDaySchema = z.object({
   date: z.string(),
   hoursWorked: z.number().min(0.5).max(24),
   kmDriven: z.number().min(1),
+  tripsCount: z.number().min(0).optional(),
   uberEarnings: z.number().min(0),
   ninetynineEarnings: z.number().min(0),
   inDriveEarnings: z.number().min(0),
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       update: {
         hoursWorked: data.hoursWorked,
         kmDriven: data.kmDriven,
+        tripsCount: data.tripsCount || null,
         uberEarnings: data.uberEarnings,
         ninetynineEarnings: data.ninetynineEarnings,
         inDriveEarnings: data.inDriveEarnings,
@@ -55,6 +57,7 @@ export async function POST(request: NextRequest) {
         date: workDate,
         hoursWorked: data.hoursWorked,
         kmDriven: data.kmDriven,
+        tripsCount: data.tripsCount || null,
         uberEarnings: data.uberEarnings,
         ninetynineEarnings: data.ninetynineEarnings,
         inDriveEarnings: data.inDriveEarnings,

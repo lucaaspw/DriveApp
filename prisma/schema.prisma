@@ -29,6 +29,7 @@ model WorkDay {
   date          DateTime  @db.Date
   hoursWorked   Float
   kmDriven      Float
+  tripsCount    Int?      // Número de viagens (opcional, inspirado no CPMA)
   uberEarnings  Float     @default(0)
   ninetynineEarnings Float @default(0)
   inDriveEarnings Float   @default(0)

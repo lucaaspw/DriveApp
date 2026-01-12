@@ -115,6 +115,7 @@ export default async function RelatoriosPage() {
       date: `${year}-${month}-${dayNum}`,
       hoursWorked: day.hoursWorked,
       kmDriven: day.kmDriven,
+      tripsCount: day.tripsCount,
       uberEarnings: day.uberEarnings,
       ninetynineEarnings: day.ninetynineEarnings,
       inDriveEarnings: day.inDriveEarnings,

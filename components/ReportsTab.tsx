@@ -2,12 +2,17 @@
 
 import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
 import { TrendingUp, Target, DollarSign, Clock, Gauge } from "lucide-react";
+import { AdvancedMetrics } from "./AdvancedMetrics";
+import { EarningsChart } from "./EarningsChart";
+import { InsightsCard } from "./InsightsCard";
+import { PlatformAnalysis } from "./PlatformAnalysis";
 
 interface WorkDay {
   id: string;
   date: string; // ISO string
   hoursWorked: number;
   kmDriven: number;
+  tripsCount?: number | null;
   uberEarnings: number;
   ninetynineEarnings: number;
   inDriveEarnings: number;
@@ -68,6 +73,24 @@ export function ReportsTab({
     (sum: number, day) => sum + day.inDriveEarnings,
     0
   );
+
+  const totalTrips = workDays.reduce(
+    (sum: number, day) => sum + (day.tripsCount || 0),
+    0
+  );
+
+  // Preparar dados para gráfico
+  const chartData = workDays.map((day) => ({
+    date: day.date,
+    totalEarnings: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
+    netProfit: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings - (day.kmDriven * costPerKm),
+    kmDriven: day.kmDriven,
+    hoursWorked: day.hoursWorked,
+  }));
+
+  // Calcular métricas para insights
+  const avgDailyEarnings = daysCount > 0 ? totalEarnings / daysCount : 0;
+  const profitabilityRate = totalEarnings > 0 ? (netProfit / totalEarnings) * 100 : 0;
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -172,73 +195,14 @@ export function ReportsTab({
         </div>
       </div>
 
-      {/* Comparação Uber vs 99 vs inDrive */}
+      {/* Análise de plataformas melhorada */}
       {uberTotal > 0 || ninetynineTotal > 0 || inDriveTotal > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm">
-          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            Uber vs 99 vs inDrive
-          </div>
-          <div className="space-y-2">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Uber</span>
-                <span className="text-xs font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(uberTotal)}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{
-                    width: `${
-                      totalEarnings > 0 ? (uberTotal / totalEarnings) * 100 : 0
-                    }%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">99</span>
-                <span className="text-xs font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(ninetynineTotal)}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-green-600 h-2 rounded-full"
-                  style={{
-                    width: `${
-                      totalEarnings > 0
-                        ? (ninetynineTotal / totalEarnings) * 100
-                        : 0
-                    }%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">inDrive</span>
-                <span className="text-xs font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(inDriveTotal)}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-purple-600 h-2 rounded-full"
-                  style={{
-                    width: `${
-                      totalEarnings > 0
-                        ? (inDriveTotal / totalEarnings) * 100
-                        : 0
-                    }%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <PlatformAnalysis
+          uberTotal={uberTotal}
+          ninetynineTotal={ninetynineTotal}
+          inDriveTotal={inDriveTotal}
+          totalEarnings={totalEarnings}
+        />
       ) : null}
 
       {/* Lista de dias (se houver) */}
@@ -287,6 +251,36 @@ export function ReportsTab({
             Nenhum registro para este período
           </div>
         </div>
+      )}
+
+      {/* Métricas avançadas inspiradas no CPMA */}
+      {workDays.length > 0 && (
+        <>
+          <AdvancedMetrics
+            totalEarnings={totalEarnings}
+            netProfit={netProfit}
+            totalHours={totalHours}
+            totalKm={totalKm}
+            tripsCount={totalTrips > 0 ? totalTrips : undefined}
+            costPerKm={costPerKm}
+            dailyGoal={dailyGoal}
+            daysCount={daysCount}
+          />
+
+          {/* Gráfico de evolução */}
+          <EarningsChart workDays={chartData} type="line" />
+
+          {/* Insights */}
+          <InsightsCard
+            totalEarnings={totalEarnings}
+            netProfit={netProfit}
+            avgDailyEarnings={avgDailyEarnings}
+            dailyGoal={dailyGoal}
+            profitabilityRate={profitabilityRate}
+            earningsPerHour={earningsPerHour}
+            daysCount={daysCount}
+          />
+        </>
       )}
     </div>
   );

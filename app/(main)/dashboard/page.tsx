@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { HomeToday } from "@/components/HomeToday";
+import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { Prisma } from "@prisma/client";
 
 export default async function DashboardPage() {
@@ -60,16 +61,47 @@ export default async function DashboardPage() {
   // Calcular gasto de hoje com combustível
   const todayFuelCost = todayWorkDay ? todayWorkDay.kmDriven * costPerKm : 0;
 
+  // Buscar últimos 7 dias para analytics
+  const last7Days = await prisma.workDay.findMany({
+    where: {
+      userId: user.id,
+      date: {
+        gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      },
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+
   // Serializar dados para passar ao componente client
   const serializedWorkDay = todayWorkDay
     ? {
         hoursWorked: todayWorkDay.hoursWorked,
         kmDriven: todayWorkDay.kmDriven,
+        tripsCount: todayWorkDay.tripsCount,
         uberEarnings: todayWorkDay.uberEarnings,
         ninetynineEarnings: todayWorkDay.ninetynineEarnings,
         inDriveEarnings: todayWorkDay.inDriveEarnings,
       }
     : null;
+
+  // Serializar últimos 7 dias para analytics
+  const serializedLast7Days = last7Days.map((day) => {
+    const date = day.date instanceof Date ? day.date : new Date(day.date);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const dayNum = String(date.getUTCDate()).padStart(2, "0");
+    return {
+      date: `${year}-${month}-${dayNum}`,
+      hoursWorked: day.hoursWorked,
+      kmDriven: day.kmDriven,
+      tripsCount: day.tripsCount,
+      uberEarnings: day.uberEarnings,
+      ninetynineEarnings: day.ninetynineEarnings,
+      inDriveEarnings: day.inDriveEarnings,
+    };
+  });
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -82,6 +114,15 @@ export default async function DashboardPage() {
         costPerKm={costPerKm}
         todayFuelCost={todayFuelCost}
       />
+      
+      {/* Analytics inspirados no CPMA */}
+      {last7Days.length > 0 && (
+        <DashboardAnalytics
+          workDays={serializedLast7Days}
+          costPerKm={costPerKm}
+          dailyGoal={user.dailyGoal}
+        />
+      )}
     </div>
   );
 }

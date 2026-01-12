@@ -11,6 +11,7 @@ const workDaySchema = z.object({
   date: z.string(),
   hoursWorked: z.number().min(0.5).max(24),
   kmDriven: z.number().min(1),
+  tripsCount: z.number().min(0).optional(),
   uberEarnings: z.number().min(0),
   ninetynineEarnings: z.number().min(0),
   inDriveEarnings: z.number().min(0),
@@ -122,23 +123,43 @@ export function RegisterWorkDay({
         </div>
       </div>
 
-      {/* Segunda linha: Km rodados */}
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          <Gauge className="w-4 h-4" />
-          Km rodados no dia
-        </label>
-        <input
-          type="number"
-          step="1"
-          min="1"
-          {...register("kmDriven", { valueAsNumber: true })}
-          className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="100"
-        />
-        {errors.kmDriven && (
-          <p className="text-red-500 text-sm mt-1">{errors.kmDriven.message}</p>
-        )}
+      {/* Segunda linha: Km rodados e Número de viagens */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <Gauge className="w-4 h-4" />
+            Km rodados no dia
+          </label>
+          <input
+            type="number"
+            step="1"
+            min="1"
+            {...register("kmDriven", { valueAsNumber: true })}
+            className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="100"
+          />
+          {errors.kmDriven && (
+            <p className="text-red-500 text-sm mt-1">{errors.kmDriven.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <DollarSign className="w-4 h-4" />
+            Número de viagens (opcional)
+          </label>
+          <input
+            type="number"
+            step="1"
+            min="0"
+            {...register("tripsCount", { valueAsNumber: true })}
+            className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="0"
+          />
+          {errors.tripsCount && (
+            <p className="text-red-500 text-sm mt-1">{errors.tripsCount.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Seção de Ganhos em grid */}

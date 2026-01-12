@@ -8,12 +8,14 @@ import {
   Fuel,
   Clock,
   Gauge,
+  Zap,
 } from "lucide-react";
 
 interface HomeTodayProps {
   workDay: {
     hoursWorked: number;
     kmDriven: number;
+    tripsCount?: number | null;
     uberEarnings: number;
     ninetynineEarnings: number;
     inDriveEarnings: number;
@@ -182,6 +184,26 @@ export function HomeToday({
               </div>
             </div>
           </div>
+          
+          {/* Informações adicionais se houver número de viagens */}
+          {workDay.tripsCount && workDay.tripsCount > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Viagens realizadas
+                  </span>
+                </div>
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {workDay.tripsCount} viagens
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Média de {formatCurrency(totalEarnings / workDay.tripsCount)} por viagem
+              </div>
+            </div>
+          )}
         </div>
       )}
 
