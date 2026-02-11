@@ -3,8 +3,15 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ReportsView } from "@/components/ReportsView";
 import { Prisma } from "@prisma/client";
+import { Suspense } from "react";
 
-export default async function RelatoriosPage() {
+interface RelatoriosPageProps {
+  searchParams: {
+    month?: string; // formato YYYY-MM
+  };
+}
+
+export default async function RelatoriosPage({ searchParams }: RelatoriosPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -18,7 +25,21 @@ export default async function RelatoriosPage() {
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
 
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Determinar mês selecionado ou usar mês atual
+  let selectedYear = today.getFullYear();
+  let selectedMonth = today.getMonth();
+  
+  if (searchParams.month) {
+    const monthParam = searchParams.month; // formato YYYY-MM
+    const [year, month] = monthParam.split("-").map(Number);
+    if (year && month >= 1 && month <= 12) {
+      selectedYear = year;
+      selectedMonth = month - 1; // JavaScript usa 0-11 para meses
+    }
+  }
+
+  const startOfMonth = new Date(selectedYear, selectedMonth, 1);
+  const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999);
 
   // Dia
   const dayWorkDays = await prisma.workDay.findMany({
@@ -41,12 +62,13 @@ export default async function RelatoriosPage() {
     },
   });
 
-  // Mês
+  // Mês (usando o mês selecionado)
   const monthWorkDays = await prisma.workDay.findMany({
     where: {
       userId: user.id,
       date: {
         gte: startOfMonth,
+        lte: endOfMonth,
       },
     },
     orderBy: {
@@ -69,6 +91,7 @@ export default async function RelatoriosPage() {
       userId: user.id,
       date: {
         gte: startOfMonth,
+        lte: endOfMonth,
       },
     },
   });
@@ -137,20 +160,27 @@ export default async function RelatoriosPage() {
     };
   };
 
+  // Formatar mês selecionado para passar ao componente
+  const selectedMonthString = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}`;
+
   return (
     <div className="space-y-4 md:space-y-6">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Relatórios
       </h1>
-      <ReportsView
-        dayData={dayWorkDays.map(serializeWorkDay)}
-        weekData={weekWorkDays.map(serializeWorkDay)}
-        monthData={monthWorkDays.map(serializeWorkDay)}
-        weekFuelings={weekFuelings.map(serializeFueling)}
-        monthFuelings={monthFuelings.map(serializeFueling)}
-        dailyGoal={user.dailyGoal}
-        costPerKm={costPerKm}
-      />
+      <Suspense fallback={<div className="text-center py-8 text-gray-600 dark:text-gray-400">Carregando...</div>}>
+        <ReportsView
+          dayData={dayWorkDays.map(serializeWorkDay)}
+          weekData={weekWorkDays.map(serializeWorkDay)}
+          monthData={monthWorkDays.map(serializeWorkDay)}
+          weekFuelings={weekFuelings.map(serializeFueling)}
+          monthFuelings={monthFuelings.map(serializeFueling)}
+          dailyGoal={user.dailyGoal}
+          costPerKm={costPerKm}
+          selectedMonth={selectedMonthString}
+          selectedYear={selectedYear}
+        />
+      </Suspense>
     </div>
   );
 }

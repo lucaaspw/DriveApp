@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Plus, BarChart3, User } from "lucide-react";
+import { Home, Plus, BarChart3, User, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/dashboard", label: "Hoje", icon: Home },
   { href: "/registrar", label: "Registrar", icon: Plus },
+  { href: "/financas", label: "Finanças", icon: Wallet },
   { href: "/perfil", label: "Perfil", icon: User },
 ];
 

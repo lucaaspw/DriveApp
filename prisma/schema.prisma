@@ -21,6 +21,7 @@ model User {
   
   workDays      WorkDay[]
   fuelings      Fueling[]
+  monthlyExpenses MonthlyExpense[]
 }
 
 model WorkDay {
@@ -54,4 +55,27 @@ model Fueling {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId, date])
+}
+
+model MonthlyExpense {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String
+  amount        Float
+  dueDate       DateTime  @db.Date
+  category      String    // Parcela da casa, Água, Luz, Internet, Celular, Móveis, Cartão, etc.
+  isPaid        Boolean   @default(false)
+  paidDate      DateTime? @db.Date
+  isRecurring   Boolean   @default(false)  // Se true, a despesa se repete todo mês
+  dueDay        Int?      // Dia do mês (1-31) para despesas recorrentes
+  recurringExpenseId String? // ID da despesa recorrente original (para agrupar)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, dueDate])
+  @@index([userId, isPaid])
+  @@index([userId, isRecurring])
+  @@index([recurringExpenseId])
 }
