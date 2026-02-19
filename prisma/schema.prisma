@@ -22,6 +22,7 @@ model User {
   workDays      WorkDay[]
   fuelings      Fueling[]
   monthlyExpenses MonthlyExpense[]
+  weeklyGoals   WeeklyGoal[]
 }
 
 model WorkDay {
@@ -78,4 +79,24 @@ model MonthlyExpense {
   @@index([userId, isPaid])
   @@index([userId, isRecurring])
   @@index([recurringExpenseId])
+}
+
+model WeeklyGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  monday        Float     @default(400)
+  tuesday       Float     @default(470)
+  wednesday     Float     @default(470)
+  thursday      Float     @default(470)
+  friday        Float     @default(550)
+  saturday      Float     @default(390)
+  sunday        Float     @default(0)
+  weeklyTotal   Float     @default(2750)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
+  @@index([userId])
 }

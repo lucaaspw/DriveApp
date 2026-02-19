@@ -62,6 +62,74 @@ export default async function DashboardPage() {
   // Calcular gasto de hoje com combustível
   const todayFuelCost = todayWorkDay ? todayWorkDay.kmDriven * costPerKm : 0;
 
+  // Buscar metas semanais e determinar meta do dia atual
+  let weeklyGoals = null;
+  try {
+    weeklyGoals = await prisma.weeklyGoal.findUnique({
+      where: { userId: user.id },
+    });
+
+    // Se não existir, criar com valores padrão
+    if (!weeklyGoals) {
+      weeklyGoals = await prisma.weeklyGoal.create({
+        data: {
+          userId: user.id,
+          monday: 400,
+          tuesday: 470,
+          wednesday: 470,
+          thursday: 470,
+          friday: 550,
+          saturday: 390,
+          sunday: 0,
+          weeklyTotal: 2750,
+        },
+      });
+    }
+  } catch (error: any) {
+    // Se a tabela não existir, usar meta padrão
+    if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
+      console.error('Tabela WeeklyGoal não existe. Execute: npx prisma db push');
+      weeklyGoals = null;
+    } else {
+      throw error;
+    }
+  }
+
+  // Determinar meta do dia atual baseado no dia da semana
+  const dayOfWeek = today.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+  let todayDailyGoal = user.dailyGoal; // Fallback para meta padrão
+  
+  if (weeklyGoals) {
+    switch (dayOfWeek) {
+      case 0: // Domingo
+        todayDailyGoal = weeklyGoals.sunday || 0;
+        break;
+      case 1: // Segunda
+        todayDailyGoal = weeklyGoals.monday;
+        break;
+      case 2: // Terça
+        todayDailyGoal = weeklyGoals.tuesday;
+        break;
+      case 3: // Quarta
+        todayDailyGoal = weeklyGoals.wednesday;
+        break;
+      case 4: // Quinta
+        todayDailyGoal = weeklyGoals.thursday;
+        break;
+      case 5: // Sexta
+        todayDailyGoal = weeklyGoals.friday;
+        break;
+      case 6: // Sábado
+        todayDailyGoal = weeklyGoals.saturday;
+        break;
+    }
+
+    // Se a meta do dia for 0, usar a meta padrão
+    if (todayDailyGoal === 0) {
+      todayDailyGoal = user.dailyGoal;
+    }
+  }
+
   // Buscar últimos 7 dias para analytics
   const last7Days = await prisma.workDay.findMany({
     where: {
@@ -115,7 +183,7 @@ export default async function DashboardPage() {
       
       <HomeToday
         workDay={serializedWorkDay}
-        dailyGoal={user.dailyGoal}
+        dailyGoal={todayDailyGoal}
         costPerKm={costPerKm}
         todayFuelCost={todayFuelCost}
       />
@@ -125,7 +193,7 @@ export default async function DashboardPage() {
         <DashboardAnalytics
           workDays={serializedLast7Days}
           costPerKm={costPerKm}
-          dailyGoal={user.dailyGoal}
+          dailyGoal={todayDailyGoal}
         />
       )}
     </div>
