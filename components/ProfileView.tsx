@@ -11,6 +11,7 @@ interface ProfileViewProps {
     name: string | null;
     email: string;
     dailyGoal: number;
+    monthlyGoal?: number | null;
   };
   clerkUser: {
     firstName: string | null;
@@ -36,10 +37,12 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
   const displayName = getDisplayName(user, clerkUser);
   const imageUrl = clerkUser?.imageUrl || null;
   const [dailyGoal, setDailyGoal] = useState(user.dailyGoal);
-  const [isEditing, setIsEditing] = useState(false);
+  const [monthlyGoal, setMonthlyGoal] = useState(user.monthlyGoal || null);
+  const [isEditingDaily, setIsEditingDaily] = useState(false);
+  const [isEditingMonthly, setIsEditingMonthly] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const handleSaveDaily = async () => {
     if (dailyGoal <= 0) {
       alert("A meta deve ser maior que zero");
       return;
@@ -57,7 +60,36 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
         throw new Error("Erro ao salvar meta");
       }
 
-      setIsEditing(false);
+      setIsEditingDaily(false);
+      // Atualizar a página para refletir a mudança
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao salvar. Tente novamente.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveMonthly = async () => {
+    if (monthlyGoal !== null && monthlyGoal <= 0) {
+      alert("A meta deve ser maior que zero");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/user/monthly-goal", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ monthlyGoal }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao salvar meta");
+      }
+
+      setIsEditingMonthly(false);
       // Atualizar a página para refletir a mudança
       window.location.reload();
     } catch (error) {
@@ -107,7 +139,7 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
             Meta Diária
           </span>
         </div>
-        {isEditing ? (
+        {isEditingDaily ? (
           <div className="space-y-3">
             <div>
               <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -125,7 +157,7 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={handleSave}
+                onClick={handleSaveDaily}
                 disabled={isSaving}
                 className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -135,7 +167,7 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
               <button
                 onClick={() => {
                   setDailyGoal(user.dailyGoal);
-                  setIsEditing(false);
+                  setIsEditingDaily(false);
                 }}
                 disabled={isSaving}
                 className="px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -150,10 +182,73 @@ export function ProfileView({ user, clerkUser }: ProfileViewProps) {
               {formatCurrency(dailyGoal)}
             </div>
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => setIsEditingDaily(true)}
               className="w-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
             >
               Editar Meta
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Meta mensal */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Meta Mensal
+          </span>
+        </div>
+        {isEditingMonthly ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Valor da meta mensal (R$)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={monthlyGoal || ""}
+                onChange={(e) => setMonthlyGoal(e.target.value ? parseFloat(e.target.value) : null)}
+                className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Ex: 10000.00 (opcional)"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Deixe em branco para remover a meta mensal
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveMonthly}
+                disabled={isSaving}
+                className="flex-1 flex items-center justify-center gap-2 bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Save className="w-4 h-4" />
+                {isSaving ? "Salvando..." : "Salvar"}
+              </button>
+              <button
+                onClick={() => {
+                  setMonthlyGoal(user.monthlyGoal || null);
+                  setIsEditingMonthly(false);
+                }}
+                disabled={isSaving}
+                className="px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {monthlyGoal ? formatCurrency(monthlyGoal) : "Não definida"}
+            </div>
+            <button
+              onClick={() => setIsEditingMonthly(true)}
+              className="w-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 py-2 px-4 rounded-lg font-semibold hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+            >
+              {monthlyGoal ? "Editar Meta" : "Definir Meta"}
             </button>
           </div>
         )}

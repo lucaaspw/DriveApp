@@ -31,6 +31,7 @@ interface ReportsViewProps {
   weekFuelings: Fueling[];
   monthFuelings: Fueling[];
   dailyGoal: number;
+  monthlyGoal?: number | null;
   costPerKm: number;
   selectedMonth?: string; // formato YYYY-MM
   selectedYear?: number;
@@ -44,6 +45,7 @@ export function ReportsView({
   weekFuelings,
   monthFuelings,
   dailyGoal,
+  monthlyGoal,
   costPerKm,
   selectedMonth: initialMonth,
   selectedYear: initialYear,
@@ -251,6 +253,7 @@ export function ReportsView({
           workDays={monthData}
           fuelings={monthFuelings}
           dailyGoal={dailyGoal}
+          monthlyGoal={monthlyGoal}
           costPerKm={costPerKm}
           period="month"
         />

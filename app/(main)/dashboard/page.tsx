@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { HomeToday } from "@/components/HomeToday";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { ExpenseAlerts } from "@/components/ExpenseAlerts";
+import { MonthlyGoalProgress } from "@/components/MonthlyGoalProgress";
 
 // Cache seletivo: revalidar a cada 60 segundos para dados recentes
 export const revalidate = 60;
@@ -70,6 +71,12 @@ export default async function DashboardPage() {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+  
+  // Calcular início e fim do mês atual
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+  const currentDay = today.getDate();
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
 
   // Buscar dados históricos com cache (dados com mais de 1 dia)
   const { workDays: cachedHistoricalWorkDays, fuelings: cachedHistoricalFuelings } = 
@@ -80,6 +87,7 @@ export default async function DashboardPage() {
     todayWorkDay,
     todayFuelings,
     weeklyGoals,
+    currentMonthWorkDays,
   ] = await Promise.all([
     // Buscar dia de trabalho de hoje - SEM CACHE (sempre fresco)
     prisma.workDay.findUnique({
@@ -136,6 +144,21 @@ export default async function DashboardPage() {
         tags: [`user-${user.id}-goals`],
       }
     )().catch(() => null),
+    // Buscar workDays do mês atual para calcular meta mensal
+    prisma.workDay.findMany({
+      where: {
+        userId: user.id,
+        date: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      select: {
+        uberEarnings: true,
+        ninetynineEarnings: true,
+        inDriveEarnings: true,
+      },
+    }),
   ]);
 
   // Combinar dados históricos em cache com dados atuais frescos
@@ -316,6 +339,12 @@ export default async function DashboardPage() {
     kmDriven: 0, // Campo não usado, mas mantido para compatibilidade
   }));
 
+  // Calcular ganhos do mês atual
+  const currentMonthEarnings = currentMonthWorkDays.reduce(
+    (sum, day) => sum + day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
+    0
+  );
+
   return (
     <div className="space-y-4 md:space-y-6">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -324,6 +353,16 @@ export default async function DashboardPage() {
       
       {/* Alertas de despesas */}
       <ExpenseAlerts />
+      
+      {/* Progresso da meta mensal */}
+      {user.monthlyGoal && (
+        <MonthlyGoalProgress
+          monthlyGoal={user.monthlyGoal}
+          currentMonthEarnings={currentMonthEarnings}
+          daysInMonth={daysInMonth}
+          currentDay={currentDay}
+        />
+      )}
       
       <HomeToday
         workDay={serializedWorkDay}

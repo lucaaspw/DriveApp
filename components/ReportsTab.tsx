@@ -29,6 +29,7 @@ interface ReportsTabProps {
   workDays: WorkDay[];
   fuelings: Fueling[];
   dailyGoal: number;
+  monthlyGoal?: number | null;
   costPerKm: number;
   period: "day" | "week" | "month";
 }
@@ -37,6 +38,7 @@ export function ReportsTab({
   workDays,
   fuelings,
   dailyGoal,
+  monthlyGoal,
   costPerKm,
   period,
 }: ReportsTabProps) {
@@ -165,6 +167,61 @@ export function ReportsTab({
           </div>
         </div>
       </div>
+
+      {/* Meta mensal (apenas para período mensal) */}
+      {period === "month" && monthlyGoal && monthlyGoal > 0 && (
+        <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-4 md:p-6 shadow-sm border-2 border-purple-200 dark:border-purple-800">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <span className="text-sm font-semibold text-purple-900 dark:text-purple-300">
+                Meta Mensal
+              </span>
+            </div>
+            <span className="text-lg font-bold text-purple-900 dark:text-purple-200">
+              {formatCurrency(monthlyGoal)}
+            </span>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-purple-700 dark:text-purple-400">
+                Ganho do mês
+              </span>
+              <span className="text-xl font-bold text-purple-900 dark:text-purple-200">
+                {formatCurrency(totalEarnings)}
+              </span>
+            </div>
+            
+            {/* Barra de progresso */}
+            <div className="w-full bg-purple-200 dark:bg-purple-900/40 rounded-full h-3">
+              <div
+                className={`h-3 rounded-full transition-all ${
+                  totalEarnings >= monthlyGoal ? "bg-green-500" : "bg-purple-500"
+                }`}
+                style={{ width: `${Math.min(100, (totalEarnings / monthlyGoal) * 100)}%` }}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between text-sm">
+              {totalEarnings >= monthlyGoal ? (
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  🎉 Meta atingida! ({((totalEarnings / monthlyGoal) * 100).toFixed(1)}%)
+                </span>
+              ) : (
+                <>
+                  <span className="text-purple-700 dark:text-purple-400">
+                    Faltam {formatCurrency(Math.max(0, monthlyGoal - totalEarnings))}
+                  </span>
+                  <span className="font-semibold text-purple-900 dark:text-purple-200">
+                    {((totalEarnings / monthlyGoal) * 100).toFixed(1)}%
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Estatísticas */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm space-y-3">

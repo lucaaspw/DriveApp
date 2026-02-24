@@ -66,6 +66,7 @@ export default async function PerfilPage() {
             name: user.name,
             email: user.email,
             dailyGoal: user.dailyGoal,
+            monthlyGoal: user.monthlyGoal,
           }}
           clerkUser={serializedClerkUser}
         />

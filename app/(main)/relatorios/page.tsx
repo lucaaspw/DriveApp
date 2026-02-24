@@ -224,6 +224,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
           weekFuelings={weekFuelings.map(serializeFueling)}
           monthFuelings={monthFuelings.map(serializeFueling)}
           dailyGoal={user.dailyGoal}
+          monthlyGoal={user.monthlyGoal}
           costPerKm={costPerKm}
           selectedMonth={selectedMonthString}
           selectedYear={selectedYear}
