@@ -1,7 +1,7 @@
 "use client";
 
 import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
-import { TrendingUp, Target, DollarSign, Clock, Gauge } from "lucide-react";
+import { TrendingUp, Target, DollarSign, Clock, Gauge, Fuel } from "lucide-react";
 import { AdvancedMetrics } from "./AdvancedMetrics";
 import { EarningsChart } from "./EarningsChart";
 import { InsightsCard } from "./InsightsCard";
@@ -40,6 +40,23 @@ export function ReportsTab({
   costPerKm,
   period,
 }: ReportsTabProps) {
+  // Criar mapa de fuelings por data para usar valores reais
+  const fuelingByDate = new Map<string, number>();
+  fuelings.forEach((fueling) => {
+    const dateKey = fueling.date.split('T')[0]; // YYYY-MM-DD
+    // Se já existe fueling para essa data, soma os valores
+    const existing = fuelingByDate.get(dateKey) || 0;
+    fuelingByDate.set(dateKey, existing + fueling.amount);
+  });
+
+  // Função auxiliar para obter custo de combustível de um dia
+  const getDayFuelCost = (day: WorkDay): number => {
+    const dateKey = day.date.split('T')[0]; // YYYY-MM-DD
+    const realFuelCost = fuelingByDate.get(dateKey);
+    // Usar valor real se existir, senão usar estimativa
+    return realFuelCost !== undefined ? realFuelCost : day.kmDriven * costPerKm;
+  };
+
   // Calcular totais
   const totalEarnings = workDays.reduce(
     (sum: number, day) => sum + day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
@@ -47,7 +64,7 @@ export function ReportsTab({
   );
 
   const totalFuelCost = workDays.reduce(
-    (sum: number, day) => sum + day.kmDriven * costPerKm,
+    (sum: number, day) => sum + getDayFuelCost(day),
     0
   );
 
@@ -80,22 +97,31 @@ export function ReportsTab({
   );
 
   // Preparar dados para gráfico
-  const chartData = workDays.map((day) => ({
-    date: day.date,
-    totalEarnings: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
-    netProfit: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings - (day.kmDriven * costPerKm),
-    kmDriven: day.kmDriven,
-    hoursWorked: day.hoursWorked,
-  }));
+  const chartData = workDays.map((day) => {
+    const dayFuelCost = getDayFuelCost(day);
+    return {
+      date: day.date,
+      totalEarnings: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
+      netProfit: day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings - dayFuelCost,
+      kmDriven: day.kmDriven,
+      hoursWorked: day.hoursWorked,
+    };
+  });
 
   // Calcular métricas para insights
   const avgDailyEarnings = daysCount > 0 ? totalEarnings / daysCount : 0;
   const profitabilityRate = totalEarnings > 0 ? (netProfit / totalEarnings) * 100 : 0;
 
+  // Calcular total de combustível adicionado (valores reais informados no app)
+  const totalFuelAdded = fuelings.reduce(
+    (sum: number, fueling) => sum + fueling.amount,
+    0
+  );
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Cards principais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -119,6 +145,23 @@ export function ReportsTab({
             }`}
           >
             {formatCurrency(netProfit)}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <Fuel className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+              Combustível adicionado
+            </div>
+          </div>
+          <div className="text-xl font-bold text-gray-900 dark:text-white">
+            {formatCurrency(totalFuelAdded)}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {period === "day" && "Valor do dia"}
+            {period === "week" && "Valor da semana"}
+            {period === "month" && "Valor do mês"}
           </div>
         </div>
       </div>

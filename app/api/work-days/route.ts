@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { revalidateTag } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -74,6 +75,17 @@ export async function POST(request: NextRequest) {
           date: workDate,
         },
       });
+    }
+
+    // Invalidar cache quando novos dados são criados/atualizados
+    revalidateTag(`user-${user.id}-historical`);
+    
+    // Se for o dia de hoje, também invalidar dados atuais
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (workDate.getTime() === today.getTime()) {
+      // Revalidar página do dashboard imediatamente
+      revalidateTag(`dashboard-${user.id}`);
     }
 
     return NextResponse.json(workDay);

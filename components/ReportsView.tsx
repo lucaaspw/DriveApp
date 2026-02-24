@@ -27,6 +27,7 @@ interface ReportsViewProps {
   dayData: WorkDay[];
   weekData: WorkDay[];
   monthData: WorkDay[];
+  dayFuelings: Fueling[];
   weekFuelings: Fueling[];
   monthFuelings: Fueling[];
   dailyGoal: number;
@@ -39,6 +40,7 @@ export function ReportsView({
   dayData,
   weekData,
   monthData,
+  dayFuelings,
   weekFuelings,
   monthFuelings,
   dailyGoal,
@@ -229,7 +231,7 @@ export function ReportsView({
       {activeTab === "day" && (
         <ReportsTab
           workDays={dayData}
-          fuelings={[]}
+          fuelings={dayFuelings}
           dailyGoal={dailyGoal}
           costPerKm={costPerKm}
           period="day"

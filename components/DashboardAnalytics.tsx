@@ -15,17 +15,43 @@ interface WorkDay {
   inDriveEarnings: number;
 }
 
+interface Fueling {
+  id: string;
+  date: string;
+  amount: number;
+  kmDriven: number;
+}
+
 interface DashboardAnalyticsProps {
   workDays: WorkDay[];
+  fuelings?: Fueling[];
   costPerKm: number;
   dailyGoal: number;
 }
 
 export function DashboardAnalytics({
   workDays,
+  fuelings = [],
   costPerKm,
   dailyGoal,
 }: DashboardAnalyticsProps) {
+  // Criar mapa de fuelings por data para usar valores reais
+  const fuelingByDate = new Map<string, number>();
+  fuelings.forEach((fueling) => {
+    const dateKey = fueling.date.split('T')[0]; // YYYY-MM-DD
+    // Se já existe fueling para essa data, soma os valores
+    const existing = fuelingByDate.get(dateKey) || 0;
+    fuelingByDate.set(dateKey, existing + fueling.amount);
+  });
+
+  // Função auxiliar para obter custo de combustível de um dia
+  const getDayFuelCost = (day: WorkDay): number => {
+    const dateKey = day.date.split('T')[0]; // YYYY-MM-DD
+    const realFuelCost = fuelingByDate.get(dateKey);
+    // Usar valor real se existir, senão usar estimativa
+    return realFuelCost !== undefined ? realFuelCost : day.kmDriven * costPerKm;
+  };
+
   // Calcular totais
   const totalEarnings = workDays.reduce(
     (sum, day) =>
@@ -34,7 +60,7 @@ export function DashboardAnalytics({
   );
 
   const totalFuelCost = workDays.reduce(
-    (sum, day) => sum + day.kmDriven * costPerKm,
+    (sum, day) => sum + getDayFuelCost(day),
     0
   );
 
@@ -47,18 +73,21 @@ export function DashboardAnalytics({
   );
 
   // Preparar dados para o gráfico
-  const chartData = workDays.map((day) => ({
-    date: day.date,
-    totalEarnings:
-      day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
-    netProfit:
-      day.uberEarnings +
-      day.ninetynineEarnings +
-      day.inDriveEarnings -
-      day.kmDriven * costPerKm,
-    kmDriven: day.kmDriven,
-    hoursWorked: day.hoursWorked,
-  }));
+  const chartData = workDays.map((day) => {
+    const dayFuelCost = getDayFuelCost(day);
+    return {
+      date: day.date,
+      totalEarnings:
+        day.uberEarnings + day.ninetynineEarnings + day.inDriveEarnings,
+      netProfit:
+        day.uberEarnings +
+        day.ninetynineEarnings +
+        day.inDriveEarnings -
+        dayFuelCost,
+      kmDriven: day.kmDriven,
+      hoursWorked: day.hoursWorked,
+    };
+  });
 
   // Calcular métricas para insights
   const avgDailyEarnings = workDays.length > 0 ? totalEarnings / workDays.length : 0;

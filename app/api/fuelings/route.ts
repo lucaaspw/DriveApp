@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { revalidateTag } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -30,6 +31,17 @@ export async function POST(request: NextRequest) {
         kmDriven: 0, // Campo não mais usado, mantido para compatibilidade com o schema
       },
     });
+
+    // Invalidar cache quando novos dados são criados
+    revalidateTag(`user-${user.id}-historical`);
+    
+    // Se for o dia de hoje, também invalidar dados atuais
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const fuelingDate = fueling.date instanceof Date ? fueling.date : new Date(fueling.date);
+    if (fuelingDate.getTime() === today.getTime()) {
+      revalidateTag(`dashboard-${user.id}`);
+    }
 
     return NextResponse.json(fueling);
   } catch (error) {

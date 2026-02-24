@@ -23,6 +23,7 @@ interface HomeTodayProps {
   dailyGoal: number;
   costPerKm: number;
   todayFuelCost: number;
+  totalFuelAdded: number;
 }
 
 export function HomeToday({
@@ -30,6 +31,7 @@ export function HomeToday({
   dailyGoal,
   costPerKm,
   todayFuelCost,
+  totalFuelAdded,
 }: HomeTodayProps) {
   const totalEarnings = workDay
     ? workDay.uberEarnings + workDay.ninetynineEarnings + workDay.inDriveEarnings
@@ -130,6 +132,9 @@ export function HomeToday({
           </div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             Custo por km: {formatCurrency(costPerKm)}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            Total adicionado (30 dias): <span className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(totalFuelAdded)}</span>
           </div>
         </div>
       </div>
