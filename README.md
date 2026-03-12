@@ -2,14 +2,13 @@
 
 ## 📖 Descrição do Sistema
 
-O **DriveApp** é uma aplicação web completa e moderna de controle financeiro desenvolvida especificamente para motoristas de aplicativos (Uber, 99, InDrive). O sistema foi projetado com foco em **mobile-first**, oferecendo uma experiência otimizada para uso em dispositivos móveis, permitindo que os motoristas registrem seus ganhos, gastos e despesas de forma rápida e eficiente.
+O **DriveApp** é uma aplicação web completa e moderna de controle financeiro desenvolvida especificamente para motoristas de aplicativos (Uber, 99, InDrive). O sistema foi projetado com foco em **mobile-first**, oferecendo uma experiência otimizada para uso em dispositivos móveis, permitindo que os motoristas registrem seus ganhos e gastos com combustível de forma rápida e eficiente.
 
 ### Objetivo Principal
 
 Facilitar o controle financeiro pessoal de motoristas, permitindo que eles:
 - Registrem rapidamente seus dias de trabalho e ganhos
 - Acompanhem gastos com combustível
-- Gerenciem despesas mensais e recorrentes
 - Visualizem relatórios e análises detalhadas de seu desempenho
 - Acompanhem o progresso em relação às metas diárias de ganho
 
@@ -20,7 +19,6 @@ Facilitar o controle financeiro pessoal de motoristas, permitindo que eles:
 - **Navegação Intuitiva**: Bottom navigation sempre visível para acesso rápido às funcionalidades
 - **Feedback Imediato**: Cálculos automáticos e status em tempo real
 - **Relatórios Visuais**: Gráficos interativos e estatísticas detalhadas para análise de desempenho
-- **Despesas Recorrentes**: Sistema inteligente de gerenciamento de despesas mensais com criação automática
 - **Múltiplas Plataformas**: Suporte para registro de ganhos do Uber, 99 e InDrive
 - **Tema Escuro**: Suporte completo a modo claro e escuro para melhor experiência visual
 
@@ -139,7 +137,6 @@ A tela principal oferece uma visão completa do dia atual:
   - Quilômetros rodados
   - Número de viagens (opcional)
 - **Analytics dos Últimos 7 Dias**: Gráficos e métricas de desempenho
-- **Alertas de Despesas**: Notificações sobre despesas pendentes próximas do vencimento
 
 ### ➕ Tela "Registrar"
 
@@ -161,24 +158,6 @@ Interface otimizada para registro rápido de informações:
 - Quilômetros rodados desde o último abastecimento
 - Cálculo automático do custo por km
 
-### 💰 Tela "Finanças" (Controle de Despesas)
-
-Sistema completo de gerenciamento de despesas mensais:
-
-- **Listagem de Despesas**: Visualização de todas as despesas com filtros por status (pago/pendente)
-- **Categorização**: Organização por categorias (Casa, Água, Luz, Internet, Celular, Móveis, Cartão, etc.)
-- **Despesas Recorrentes**: 
-  - Configuração de despesas que se repetem mensalmente
-  - Criação automática da próxima instância ao marcar como pago
-  - Agrupamento inteligente de despesas recorrentes
-- **Gestão de Vencimentos**: 
-  - Data de vencimento ou dia do mês para despesas recorrentes
-  - Alertas de despesas próximas do vencimento
-- **Controle de Pagamento**: 
-  - Marcação de despesas como pagas
-  - Registro de data de pagamento
-  - Histórico completo de pagamentos
-
 ### 📊 Tela "Relatórios"
 
 Análise detalhada de desempenho financeiro com múltiplas visualizações:
@@ -190,8 +169,8 @@ Análise detalhada de desempenho financeiro com múltiplas visualizações:
 
 #### Métricas Principais
 - Total ganho (soma de todas as plataformas)
-- Total gasto (combustível + despesas)
-- Lucro líquido (ganho - gastos)
+- Total gasto (combustível)
+- Lucro líquido (ganho - gastos com combustível)
 - Média por dia trabalhado
 - Dias que bateram a meta diária
 - Taxa de sucesso em relação à meta
@@ -230,7 +209,7 @@ O banco de dados utiliza PostgreSQL gerenciado pelo Neon e é modelado através 
 - `name`: Nome do usuário (opcional)
 - `dailyGoal`: Meta diária de ganho (padrão: R$ 500)
 - `createdAt` / `updatedAt`: Timestamps automáticos
-- **Relacionamentos**: WorkDay[], Fueling[], MonthlyExpense[]
+- **Relacionamentos**: WorkDay[], Fueling[]
 
 #### WorkDay (Dias de Trabalho)
 - `id`: Identificador único
@@ -253,21 +232,6 @@ O banco de dados utiliza PostgreSQL gerenciado pelo Neon e é modelado através 
 - `kmDriven`: Quilômetros rodados desde último abastecimento
 - `createdAt` / `updatedAt`: Timestamps automáticos
 - **Índices**: [userId, date] para consultas otimizadas
-
-#### MonthlyExpense (Despesas Mensais)
-- `id`: Identificador único
-- `userId`: Referência ao usuário
-- `name`: Nome da despesa
-- `amount`: Valor da despesa
-- `dueDate`: Data de vencimento
-- `category`: Categoria da despesa
-- `isPaid`: Status de pagamento
-- `paidDate`: Data de pagamento (opcional)
-- `isRecurring`: Indica se é despesa recorrente
-- `dueDay`: Dia do mês para despesas recorrentes (1-31)
-- `recurringExpenseId`: ID para agrupar despesas recorrentes
-- `createdAt` / `updatedAt`: Timestamps automáticos
-- **Índices**: [userId, dueDate], [userId, isPaid], [userId, isRecurring], [recurringExpenseId]
 
 ## 📝 Scripts
 
@@ -315,14 +279,12 @@ O sistema foi projetado seguindo os princípios de Mobile First:
 1. **Cadastro**: Login com conta Google via Clerk
 2. **Configuração Inicial**: Definir meta diária (padrão: R$ 500)
 3. **Primeiro Registro**: Registrar primeiro dia de trabalho e primeiro abastecimento
-4. **Configurar Despesas**: Adicionar despesas mensais recorrentes (aluguel, contas, etc.)
 
 ### Uso Diário
 
 1. **Ao Final do Dia**: Registrar dia de trabalho com ganhos e km rodados
 2. **Ao Abastecer**: Registrar abastecimento com valor e km
 3. **Verificar Dashboard**: Acompanhar progresso em relação à meta diária
-4. **Gerenciar Despesas**: Marcar despesas como pagas quando necessário
 
 ### Análise Semanal/Mensal
 
@@ -333,8 +295,6 @@ O sistema foi projetado seguindo os princípios de Mobile First:
 ## 🎯 Diferenciais do Sistema
 
 - **Cálculo Automático de Custo por Km**: Sistema calcula automaticamente o custo por km baseado nos últimos 30 dias de abastecimentos
-- **Despesas Recorrentes Inteligentes**: Ao marcar uma despesa recorrente como paga, o sistema automaticamente cria a próxima instância para o próximo mês
-- **Alertas Proativos**: Sistema alerta sobre despesas próximas do vencimento
 - **Múltiplas Plataformas**: Suporte nativo para Uber, 99 e InDrive com análise comparativa
 - **Métricas Avançadas**: Cálculo automático de ganho por hora, ganho por km e custo por km
 - **Interface Responsiva**: Funciona perfeitamente em mobile, tablet e desktop
@@ -369,7 +329,7 @@ O sistema foi projetado seguindo os princípios de Mobile First:
 O sistema calcula e exibe automaticamente:
 
 - **Ganho Total**: Soma de todas as plataformas
-- **Lucro Líquido**: Ganho - (Combustível + Despesas)
+- **Lucro Líquido**: Ganho - Combustível
 - **Ganho por Hora**: Total ganho / Horas trabalhadas
 - **Ganho por Km**: Total ganho / Km rodados
 - **Custo por Km**: Total gasto com combustível / Km rodados (últimos 30 dias)

@@ -26,7 +26,7 @@ O DriveApp agora é um **Progressive Web App (PWA)**, o que significa que você 
 - ✅ **Acesso rápido** - Ícone na tela inicial como um app normal
 - ✅ **Funciona offline** - Algumas funcionalidades disponíveis sem internet
 - ✅ **Experiência nativa** - Abre em tela cheia, sem barra do navegador
-- ✅ **Notificações** - Receba alertas de despesas e lembretes
+- ✅ **Notificações** - Receba alertas e lembretes
 - ✅ **Atualizações automáticas** - Sempre com a versão mais recente
 
 ## 🔧 Desenvolvimento

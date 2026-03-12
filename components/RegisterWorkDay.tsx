@@ -24,14 +24,26 @@ type WorkDayFormData = z.infer<typeof workDaySchema>;
 interface RegisterWorkDayProps {
   onSuccess: () => void;
   dailyGoal: number;
+  initialData?: {
+    id: string;
+    date: string;
+    hoursWorked: number;
+    kmDriven: number;
+    tripsCount?: number | null;
+    uberEarnings: number;
+    ninetynineEarnings: number;
+    inDriveEarnings: number;
+  };
+  isEditing?: boolean;
 }
 
 export function RegisterWorkDay({
   onSuccess,
   dailyGoal,
+  initialData,
+  isEditing = false,
 }: RegisterWorkDayProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [total, setTotal] = useState(0);
 
   const {
     register,
@@ -40,44 +52,74 @@ export function RegisterWorkDay({
     formState: { errors },
   } = useForm<WorkDayFormData>({
     resolver: zodResolver(workDaySchema),
-    defaultValues: {
-      date: new Date().toISOString().split("T")[0],
-      hoursWorked: 8,
-      kmDriven: 100,
-      uberEarnings: 0,
-      ninetynineEarnings: 0,
-      inDriveEarnings: 0,
-      fuelAmount: undefined,
-    },
+    defaultValues: initialData
+      ? {
+          date: initialData.date,
+          hoursWorked: initialData.hoursWorked,
+          kmDriven: initialData.kmDriven,
+          tripsCount: initialData.tripsCount || undefined,
+          uberEarnings: initialData.uberEarnings,
+          ninetynineEarnings: initialData.ninetynineEarnings,
+          inDriveEarnings: initialData.inDriveEarnings,
+          fuelAmount: undefined,
+        }
+      : {
+          date: new Date().toISOString().split("T")[0],
+          hoursWorked: 8,
+          kmDriven: 100,
+          uberEarnings: 0,
+          ninetynineEarnings: 0,
+          inDriveEarnings: 0,
+          fuelAmount: undefined,
+        },
   });
 
   const uberEarnings = watch("uberEarnings");
   const ninetynineEarnings = watch("ninetynineEarnings");
   const inDriveEarnings = watch("inDriveEarnings");
 
-  // Calcular total
-  const currentTotal = (uberEarnings || 0) + (ninetynineEarnings || 0) + (inDriveEarnings || 0);
-  if (currentTotal !== total) {
-    setTotal(currentTotal);
-  }
+  // Calcular total diretamente
+  const total = (uberEarnings || 0) + (ninetynineEarnings || 0) + (inDriveEarnings || 0);
 
   const onSubmit = async (data: WorkDayFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/work-days", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      if (isEditing && initialData) {
+        // Modo edição: usar PATCH
+        const response = await fetch("/api/work-days", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: initialData.id,
+            hoursWorked: data.hoursWorked,
+            kmDriven: data.kmDriven,
+            tripsCount: data.tripsCount || null,
+            uberEarnings: data.uberEarnings,
+            ninetynineEarnings: data.ninetynineEarnings,
+            inDriveEarnings: data.inDriveEarnings,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Erro ao registrar dia de trabalho");
+        if (!response.ok) {
+          throw new Error("Erro ao atualizar dia de trabalho");
+        }
+      } else {
+        // Modo criação: usar POST
+        const response = await fetch("/api/work-days", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao registrar dia de trabalho");
+        }
       }
 
       onSuccess();
     } catch (error) {
       console.error(error);
-      alert("Erro ao registrar. Tente novamente.");
+      alert(isEditing ? "Erro ao atualizar. Tente novamente." : "Erro ao registrar. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +137,8 @@ export function RegisterWorkDay({
           <input
             type="date"
             {...register("date")}
-            className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={isEditing}
+            className="w-full px-4 py-3 text-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {errors.date && (
             <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
@@ -289,7 +332,7 @@ export function RegisterWorkDay({
         disabled={isSubmitting}
         className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? "Salvando..." : "Registrar Dia"}
+        {isSubmitting ? "Salvando..." : isEditing ? "Atualizar Registro" : "Registrar Dia"}
       </button>
     </form>
   );

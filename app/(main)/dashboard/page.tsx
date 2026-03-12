@@ -4,7 +4,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { HomeToday } from "@/components/HomeToday";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
-import { ExpenseAlerts } from "@/components/ExpenseAlerts";
 import { MonthlyGoalProgress } from "@/components/MonthlyGoalProgress";
 
 // Cache seletivo: revalidar a cada 60 segundos para dados recentes
@@ -350,9 +349,6 @@ export default async function DashboardPage() {
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Olá, {user.name}
       </h1>
-      
-      {/* Alertas de despesas */}
-      <ExpenseAlerts />
       
       {/* Progresso da meta mensal */}
       {user.monthlyGoal && (

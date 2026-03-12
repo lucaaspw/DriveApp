@@ -1,11 +1,12 @@
 "use client";
 
 import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
-import { TrendingUp, Target, DollarSign, Clock, Gauge, Fuel } from "lucide-react";
+import { TrendingUp, Target, DollarSign, Clock, Gauge, Fuel, Edit } from "lucide-react";
 import { AdvancedMetrics } from "./AdvancedMetrics";
 import { EarningsChart } from "./EarningsChart";
 import { InsightsCard } from "./InsightsCard";
 import { PlatformAnalysis } from "./PlatformAnalysis";
+import { useRouter } from "next/navigation";
 
 interface WorkDay {
   id: string;
@@ -42,6 +43,11 @@ export function ReportsTab({
   costPerKm,
   period,
 }: ReportsTabProps) {
+  const router = useRouter();
+
+  const handleEdit = (dayId: string) => {
+    router.push(`/registrar?edit=${dayId}`);
+  };
   // Criar mapa de fuelings por data para usar valores reais
   const fuelingByDate = new Map<string, number>();
   fuelings.forEach((fueling) => {
@@ -319,7 +325,7 @@ export function ReportsTab({
               return (
                 <div
                   key={day.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -330,13 +336,22 @@ export function ReportsTab({
                       km
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-gray-900 dark:text-white">
-                      {formatCurrency(dayTotal)}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">
+                        {formatCurrency(dayTotal)}
+                      </div>
+                      {isGoalReached && (
+                        <div className="text-xs text-green-600">✓ Meta</div>
+                      )}
                     </div>
-                    {isGoalReached && (
-                      <div className="text-xs text-green-600">✓ Meta</div>
-                    )}
+                    <button
+                      onClick={() => handleEdit(day.id)}
+                      className="p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      title="Editar registro"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               );
