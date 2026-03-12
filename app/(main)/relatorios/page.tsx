@@ -12,6 +12,9 @@ export const revalidate = 120;
 interface RelatoriosPageProps {
   searchParams: {
     month?: string; // formato YYYY-MM
+    compare?: string;
+    month1?: string; // formato YYYY-MM
+    month2?: string; // formato YYYY-MM
   };
 }
 
@@ -47,10 +50,44 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
+  // Determinar meses para comparação
+  let compareMonth1Year = today.getFullYear();
+  let compareMonth1Month = today.getMonth();
+  let compareMonth2Year = today.getFullYear();
+  let compareMonth2Month = today.getMonth() - 1;
+  
+  if (compareMonth2Month < 0) {
+    compareMonth2Month = 11;
+    compareMonth2Year--;
+  }
+
+  if (searchParams.month1) {
+    const [year, month] = searchParams.month1.split("-").map(Number);
+    if (year && month >= 1 && month <= 12) {
+      compareMonth1Year = year;
+      compareMonth1Month = month - 1;
+    }
+  }
+
+  if (searchParams.month2) {
+    const [year, month] = searchParams.month2.split("-").map(Number);
+    if (year && month >= 1 && month <= 12) {
+      compareMonth2Year = year;
+      compareMonth2Month = month - 1;
+    }
+  }
+
+  const startOfCompareMonth1 = new Date(compareMonth1Year, compareMonth1Month, 1);
+  const endOfCompareMonth1 = new Date(compareMonth1Year, compareMonth1Month + 1, 0, 23, 59, 59, 999);
+  const startOfCompareMonth2 = new Date(compareMonth2Year, compareMonth2Month, 1);
+  const endOfCompareMonth2 = new Date(compareMonth2Year, compareMonth2Month + 1, 0, 23, 59, 59, 999);
+
   // Determinar período mínimo necessário para buscar todos os dados
   const minDate = new Date(Math.min(
     startOfWeek.getTime(),
     startOfMonth.getTime(),
+    startOfCompareMonth1.getTime(),
+    startOfCompareMonth2.getTime(),
     thirtyDaysAgo.getTime()
   ));
 
@@ -168,6 +205,39 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
     return fuelingDate >= startOfMonth && fuelingDate <= endOfMonth;
   });
 
+  // Filtrar dados para comparação de meses
+  const compareMonth1WorkDays = allWorkDays
+    .filter((day) => {
+      const dayDate = day.date instanceof Date ? day.date : new Date(day.date);
+      return dayDate >= startOfCompareMonth1 && dayDate <= endOfCompareMonth1;
+    })
+    .sort((a, b) => {
+      const dateA = a.date instanceof Date ? a.date : new Date(a.date);
+      const dateB = b.date instanceof Date ? b.date : new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+  const compareMonth2WorkDays = allWorkDays
+    .filter((day) => {
+      const dayDate = day.date instanceof Date ? day.date : new Date(day.date);
+      return dayDate >= startOfCompareMonth2 && dayDate <= endOfCompareMonth2;
+    })
+    .sort((a, b) => {
+      const dateA = a.date instanceof Date ? a.date : new Date(a.date);
+      const dateB = b.date instanceof Date ? b.date : new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+  const compareMonth1Fuelings = allFuelings.filter((f) => {
+    const fuelingDate = f.date instanceof Date ? f.date : new Date(f.date);
+    return fuelingDate >= startOfCompareMonth1 && fuelingDate <= endOfCompareMonth1;
+  });
+
+  const compareMonth2Fuelings = allFuelings.filter((f) => {
+    const fuelingDate = f.date instanceof Date ? f.date : new Date(f.date);
+    return fuelingDate >= startOfCompareMonth2 && fuelingDate <= endOfCompareMonth2;
+  });
+
   // Calcular custo por km (otimizado com loop único)
   let totalKm = 0;
   for (const day of last30Days) {
@@ -209,6 +279,14 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
 
   // Formatar mês selecionado para passar ao componente
   const selectedMonthString = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}`;
+  
+  // Formatar labels dos meses para comparação
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  const compareMonth1Label = `${monthNames[compareMonth1Month]} ${compareMonth1Year}`;
+  const compareMonth2Label = `${monthNames[compareMonth2Month]} ${compareMonth2Year}`;
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -228,6 +306,12 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
           costPerKm={costPerKm}
           selectedMonth={selectedMonthString}
           selectedYear={selectedYear}
+          comparisonMonth1={compareMonth1WorkDays.map(serializeWorkDay)}
+          comparisonMonth2={compareMonth2WorkDays.map(serializeWorkDay)}
+          comparisonFuelings1={compareMonth1Fuelings.map(serializeFueling)}
+          comparisonFuelings2={compareMonth2Fuelings.map(serializeFueling)}
+          comparisonMonth1Label={compareMonth1Label}
+          comparisonMonth2Label={compareMonth2Label}
         />
       </Suspense>
     </div>
